@@ -1,39 +1,58 @@
-import { ref } from 'vue';
-import axios from 'axios';
-import { toast } from '@/utils/toast';
-
-const BASE_URL = 'https://financiera-backend-production.up.railway.app'; // Cambia esto por tu URL base
-//const BASE_URL = 'http://localhost:3001';
+import { useHistoryStore } from '@/stores/history'
+import { toast } from '@/utils/toast.js'
+import axios from 'axios'
+import { ref } from 'vue'
 
 export function useTrack() {
-  const track = ref('');
-  const result = ref({ client: null, loans: [] });
-  const searching = ref(false);
+  const BASE_URL = 'https://ft-backend-production-e6f5.up.railway.app'
+  //const BASE_URL = 'http://localhost:3001'
+  const searching = ref(false)
+  const track = ref('')
+  const client = ref('')
+  const method = ref('tracking')
+  const history = useHistoryStore()
+
+  const result = ref({
+    details: [],
+    logs: []
+  })
+
+  const packages = ref([])
 
   const search = async () => {
-    searching.value = true;
+    searching.value = true
 
-    try {
-      const { data } = await axios.get(`${BASE_URL}/search/${track.value}`);
-      result.value = data; // Asigna los datos del cliente y préstamos al resultado
-    } catch (error) {
-      toast.error('Error al buscar el cliente');
-      result.value = { client: null, loans: [] }; // Reinicia los datos en caso de error
-    } finally {
-      searching.value = false;
-    }
-  };
+    await axios
+      .get(`${BASE_URL}/search`, {
+        params: {
+          track: track.value,
+          client: client.value
+        }
+      })
+      .then(({ data }) => {
+        if (method.value === 'name') {
+          packages.value = data
+        } else {
+          result.value = data
 
-  const resetValues = () => {
-    track.value = '';
-    result.value = { client: null, loans: [] };
-  };
+          if (data.details.length > 1) {
+            history.setTracking(track.value)
+          }
+        }
+      })
+      .catch(() => {
+        toast.error('Error al buscar el paquete')
+      })
+      .finally(() => {
+        searching.value = false
+      })
+  }
 
-  return {
-    track,
-    result,
-    searching,
-    search,
-    resetValues
-  };
+  function resetValues() {
+    result.value = { details: [], logs: [] }
+  }
+
+  return { search, result, searching, track, resetValues, client, method, packages }
 }
+
+export default useTrack

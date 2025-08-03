@@ -1,7 +1,7 @@
 <template>
   <footer>
     <div class="text-center py-6 text-gray-400">
-      <div>© {{ CURRENT_YEAR }} Credit Al Instante</div>
+      <div>© {{ CURRENT_YEAR }} TravelBox</div>
       <small>
         Desarrollado por
         <a href="https://strain-team.com" class="text-[#3a6cb2]" target="_blank">
