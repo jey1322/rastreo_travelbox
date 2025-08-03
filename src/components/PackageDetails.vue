@@ -13,7 +13,7 @@
           <div class="flex flex-col items-center justify-center mb-2">
             <span
               class="font-bold flex items-center justify-center w-8 h-8 text-white rounded-full"
-              :class="log.date ? 'bg-[#fca900]' : 'bg-gray-200'"
+              :class="log.date ? 'bg-[#77477e]' : 'bg-gray-200'"
             >
               <CheckSvg v-if="log.status == 'ENTREGADO' || log.status === 'Entregado'" />
               <label v-else>

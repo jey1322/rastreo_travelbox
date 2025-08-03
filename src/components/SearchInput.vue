@@ -14,7 +14,7 @@
     <button
       type="submit"
       aria-label="Buscar"
-      class="flex p-2 items-center justify-center bg-[#fca900] text-white h-full rounded-full select-none"
+      class="flex p-2 items-center justify-center bg-[#77477e] text-white h-full rounded-full select-none"
     >
       <LoadingAnimation v-if="loading" />
       <SearchSvg v-else />
