@@ -9,7 +9,9 @@ lerna-debug.log*
 
 node_modules
 .DS_Store
-dist
+# Ignorar dist localmente, pero permitirlo para el deploy a GitHub Pages
+/dist
+!/dist
 dist-ssr
 coverage
 *.local
