@@ -4,7 +4,7 @@
       <div>© {{ CURRENT_YEAR }} TravelBox</div>
       <small>
         Desarrollado por
-        <a href="https://strain-team.com" class="text-[#3a6cb2]" target="_blank">
+        <a href="https://strain-team.com" class="text-[#1a1c27]" target="_blank">
           StrainTeam Developers
         </a>
       </small>

@@ -42,7 +42,7 @@ function showThis(tracking) {
         </div>
         <h5 class="text-2xl lg:text-4xl font-bold mb-8 tracking-wider">¡Busca tu paquete!</h5>
         <div class="text-base font-light mb-10 leading-relaxed tracking-wide">
-          Ingresa tu número de rastreo y monitorea el progreso de tu paquete al instante 🕒
+          Ingresa tu número de rastreo y monitorea tu paquete al instante 🕒
         </div>
 
         <div class="grid grid-cols-2 mb-8">
@@ -88,7 +88,7 @@ function showThis(tracking) {
           class="flex items-center justify-between gap-1 border rounded-lg px-4 py-3"
         >
           <div class="text-left flex flex-col gap-1">
-            <div class="font-bold text-[#3a6cb2] text-sm">
+            <div class="font-bold text-[#1a1c27] text-sm">
               {{ item.tracking }}
             </div>
             <div>
