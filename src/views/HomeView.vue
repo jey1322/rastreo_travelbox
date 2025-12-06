@@ -7,24 +7,27 @@ const { search, searching, track, client, method, packages, resetValues } = useT
 const searchModel = ref('')
 
 function onSubmit() {
-  resetValues();
+  resetValues()
   if (method.value === 'tracking') {
-    client.value = '';
-    track.value = searchModel.value;
+    client.value = ''
+    track.value = searchModel.value
   } else {
-    track.value = '';
-    client.value = searchModel.value;
+    track.value = ''
+    client.value = searchModel.value
   }
-  search();
+  search()
 }
 
 function switchTo(type) {
-  method.value = type;
-  searchModel.value = '';
+  method.value = type
+  searchModel.value = ''
 }
-function showThis(tracking) {
-  // Aquí puedes mostrar detalles del paquete si lo deseas
-  console.log(`Mostrando detalles para el tracking: ${tracking}`);
+
+function formatDate(d) {
+  if (!d) return 'Sin fecha'
+  const dt = new Date(d)
+  if (isNaN(dt.getTime())) return 'Sin fecha'
+  return dt.toLocaleDateString('es-NI', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 </script>
 
@@ -40,9 +43,10 @@ function showThis(tracking) {
             <img src="/icon.png" alt="Logo" class="w-[5rem] h-auto" />
           </a>
         </div>
+
         <h5 class="text-2xl lg:text-4xl font-bold mb-8 tracking-wider">¡Busca tu paquete!</h5>
         <div class="text-base font-light mb-10 leading-relaxed tracking-wide">
-          Ingresa tu número de rastreo y monitorea tu paquete al instante 🕒
+          Ingresa tu número de rastreo o el nombre y monitorea tu paquete al instante 🕒
         </div>
 
         <div class="grid grid-cols-2 mb-8">
@@ -78,30 +82,51 @@ function showThis(tracking) {
   </section>
 
   <section class="bg-white text-gray-600 h-full mb-4">
-    <div class="max-w-xl mx-auto flex flex-col items-center justify-center mb-4 px-4">
-      <div class="w-full flex flex-col gap-4">
+    <div class="max-w-3xl mx-auto flex flex-col items-stretch mb-4 px-4">
+      <div v-if="packages.length" class="w-full flex flex-col gap-4">
         <div
-          type="button"
           v-for="item in packages"
-          :key="item.id"
-          @click.prevent="showThis(item.tracking)"
-          class="flex items-center justify-between gap-1 border rounded-lg px-4 py-3"
+          :key="item._id || item.id || item.tracking || item.guide || item.createdAt"
+          class="border rounded-lg p-4 bg-white shadow-sm"
         >
-          <div class="text-left flex flex-col gap-1">
-            <div class="font-bold text-[#1a1c27] text-sm">
-              {{ item.tracking }}
+          <!-- Encabezado -->
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <div class="text-sm font-bold text-[#1a1c27]">
+                {{ item.tracking || item.guide || item._id || item.id }}
+              </div>
+              <div class="text-xs text-gray-500">
+                {{ item.client || 'Cliente no disponible' }}
+              </div>
             </div>
-            <div>
-              {{ item.client }}
+
+            <div class="text-xs text-gray-400 text-right">
+              <div>{{ formatDate(item.createdAt) }}</div>
             </div>
-            <div class="text-sm text-gray-400">{{ item.type }} - {{}} lbs</div>
-            <div class="text-sm text-gray-400">{{ item.description }}</div>
-            <div class="text-xs text-gray-400">{{ new Date(item.createdAt).toLocaleDateString('es-NI', { year: 'numeric', month: 'long', day: 'numeric' }) }}</div>
+          </div>
+
+          <!-- Campos solicitados: tracking, weight, type, client, status, createdAt, image -->
+          <div class="mt-3 text-sm text-gray-700 space-y-1">
+            <div><strong>Tracking:</strong> {{ item.tracking || 'N/A' }}</div>
+            <div v-if="item.weight !== undefined"><strong>Peso:</strong> {{ item.weight }} lb(s)</div>
+            <div v-else-if="item.grossWeight !== undefined"><strong>Peso:</strong> {{ item.grossWeight }} lb(s)</div>
+            <div v-if="item.type"><strong>Tipo:</strong> {{ item.type }}</div>
+            <div v-if="item.status"><strong>Status:</strong> {{ item.status }}</div>
+          </div>
+
+          <!-- Imagen o 'Sin imagen' -->
+          <div class="mt-3">
+            <div class="text-sm text-gray-500 mb-1"><strong>Imagen:</strong></div>
+            <div v-if="item.image">
+              <img :src="item.image" alt="imagen paquete" class="w-40 h-auto rounded" />
+            </div>
+            <div v-else class="text-sm text-gray-400">Sin imagen</div>
           </div>
         </div>
       </div>
-      <div v-if="!packages.length">
-        <div class="text-gray-400 mt-4">No se encontraron paquetes</div>
+
+      <div v-else class="text-center mt-6">
+        <div class="text-gray-400">No se encontraron paquetes</div>
       </div>
     </div>
   </section>
