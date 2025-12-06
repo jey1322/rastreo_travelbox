@@ -71,7 +71,7 @@ function formatDate(d) {
         <SearchInput
           v-model="searchModel"
           :loading="searching"
-          :placeholder="method == 'tracking' ? 'Ingrese el número de rastreo' : 'Ingrese su nombre'"
+          :placeholder="method == 'tracking' ? 'Ingrese el número de rastreo.' : 'Ingrese su nombre'"
         />
 
         <div v-if="method === 'name'" class="mt-5 text-sm text-slate-300">
