@@ -111,7 +111,7 @@ function formatDate(d) {
             <div v-if="item.weight !== undefined"><strong>Peso:</strong> {{ item.weight }} lb(s)</div>
             <div v-else-if="item.grossWeight !== undefined"><strong>Peso:</strong> {{ item.grossWeight }} lb(s)</div>
             <div v-if="item.type"><strong>Tipo:</strong> {{ item.type }}</div>
-            <div v-if="item.status"><strong>Status:</strong> {{ item.status }}</div>
+            <div v-if="item.status"><strong>Estado:</strong> {{ item.status }}</div>
           </div>
 
           <!-- Imagen o 'Sin imagen' -->
