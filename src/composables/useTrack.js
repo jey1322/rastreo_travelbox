@@ -46,7 +46,7 @@ export function useTrack() {
         }
 
         // tracking suele estar en la posición 2 en los ejemplos
-        const trackingCandidate = details[2] || ''
+        const trackingCandidate = details[1] || ''
         const tracking = trackingCandidate && /[A-Za-z0-9-]{6,}/.test(trackingCandidate) ? trackingCandidate : (track.value || '')
 
         // guía
@@ -85,7 +85,9 @@ export function useTrack() {
       packages.value = []
     } catch (err) {
       packages.value = []
-      toast.error('Error al buscar el paquete')
+      // Si el servidor responde con un mensaje específico, lo mostramos. Si no, mostramos un error por defecto.
+      const errorMessage = err.response?.data?.message || 'Error al buscar el paquete'
+      toast.error(errorMessage)
     } finally {
       searching.value = false
     }

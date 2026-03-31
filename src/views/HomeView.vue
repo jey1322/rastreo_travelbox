@@ -1,26 +1,54 @@
 <script setup>
 import SearchInput from '@/components/SearchInput.vue'
 import useTrack from '@/composables/useTrack'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const { search, searching, track, client, method, packages, resetValues } = useTrack()
 const searchModel = ref('')
 
+// Cargar estado inicial al abrir la página
+onMounted(() => {
+  const savedMethod = localStorage.getItem('lastMethod') || 'tracking'
+  method.value = savedMethod // Selecciona la pestaña que usó por última vez
+  
+  if (savedMethod === 'tracking') {
+    searchModel.value = localStorage.getItem('lastTracking') || ''
+  } else {
+    searchModel.value = localStorage.getItem('lastName') || ''
+  }
+})
+
 function onSubmit() {
   resetValues()
+  const cleanSearch = searchModel.value.trim()
+  
+  // Guardamos la pestaña actual
+  localStorage.setItem('lastMethod', method.value)
+
   if (method.value === 'tracking') {
     client.value = ''
-    track.value = searchModel.value
+    track.value = cleanSearch
+    // Guardamos el tracking buscado
+    localStorage.setItem('lastTracking', cleanSearch)
   } else {
     track.value = ''
-    client.value = searchModel.value
+    client.value = cleanSearch
+    // Guardamos el nombre buscado
+    localStorage.setItem('lastName', cleanSearch)
   }
   search()
 }
 
 function switchTo(type) {
   method.value = type
-  searchModel.value = ''
+  localStorage.setItem('lastMethod', type)
+  
+  // Al cambiar de pestaña, cargamos el valor guardado para esa opción (o lo dejamos en blanco)
+  if (type === 'tracking') {
+    searchModel.value = localStorage.getItem('lastTracking') || ''
+  } else {
+    searchModel.value = localStorage.getItem('lastName') || ''
+  }
 }
 
 function formatDate(d) {
@@ -28,6 +56,18 @@ function formatDate(d) {
   const dt = new Date(d)
   if (isNaN(dt.getTime())) return 'Sin fecha'
   return dt.toLocaleDateString('es-NI', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+function getLastActiveStatus(item) {
+  if (item.logs && Array.isArray(item.logs) && item.logs.length > 0) {
+    const activeLogs = item.logs.filter(log => log.date && log.date.trim() !== '')
+    
+    if (activeLogs.length > 0) {
+      const lastActive = activeLogs[activeLogs.length - 1]
+      return `${lastActive.status} - ${lastActive.date}`
+    }
+  }
+  return item.status
 }
 </script>
 
@@ -99,29 +139,35 @@ function formatDate(d) {
                 {{ item.client || 'Cliente no disponible' }}
               </div>
             </div>
+          </div>
 
-            <div class="text-xs text-gray-400 text-right">
-              <div>{{ formatDate(item.createdAt) }}</div>
+          <!-- Vista cuando no se ha recibido el paquete -->
+          <template v-if="item.status === 'Aún no hemos recibido este paquete'">
+            <div class="mt-4 p-3 bg-yellow-50 text-yellow-800 text-sm font-medium rounded border border-yellow-200">
+              ⚠️ {{ item.status }}
             </div>
-          </div>
+          </template>
 
-          <!-- Campos solicitados: tracking, weight, type, client, status, createdAt, image -->
-          <div class="mt-3 text-sm text-gray-700 space-y-1">
-            <div><strong>Tracking:</strong> {{ item.tracking || 'N/A' }}</div>
-            <div v-if="item.weight !== undefined"><strong>Peso:</strong> {{ item.weight }} lb(s)</div>
-            <div v-else-if="item.grossWeight !== undefined"><strong>Peso:</strong> {{ item.grossWeight }} lb(s)</div>
-            <div v-if="item.type"><strong>Tipo:</strong> {{ item.type }}</div>
-            <div v-if="item.status"><strong>Estado:</strong> {{ item.status }}</div>
-          </div>
-
-          <!-- Imagen o 'Sin imagen' -->
-          <div class="mt-3">
-            <div class="text-sm text-gray-500 mb-1"><strong>Imagen:</strong></div>
-            <div v-if="item.image">
-              <img :src="item.image" alt="imagen paquete" class="w-40 h-auto rounded" />
+          <!-- Vista normal cuando el paquete sí tiene datos -->
+          <template v-else>
+            <!-- Campos del paquete -->
+            <div class="mt-3 text-sm text-gray-700 space-y-1">
+              <div><strong>Tracking:</strong> {{ item.tracking || 'N/A' }}</div>
+              <div v-if="item.weight !== undefined"><strong>Peso:</strong> {{ item.weight }} lb(s)</div>
+              <div v-else-if="item.grossWeight !== undefined"><strong>Peso:</strong> {{ item.grossWeight }} lb(s)</div>
+              <div v-if="item.type"><strong>Tipo:</strong> {{ item.type }}</div>
+              <div v-if="item.status"><strong>Estado:</strong> {{ getLastActiveStatus(item) }}</div>
             </div>
-            <div v-else class="text-sm text-gray-400">Sin imagen</div>
-          </div>
+
+            <!-- Imagen -->
+            <div class="mt-3">
+              <div class="text-sm text-gray-500 mb-1"><strong>Imagen:</strong></div>
+              <div v-if="item.image">
+                <img :src="item.image" alt="imagen paquete" class="w-40 h-auto rounded" />
+              </div>
+              <div v-else class="text-sm text-gray-400">Sin imagen</div>
+            </div>
+          </template>
         </div>
       </div>
 
