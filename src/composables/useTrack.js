@@ -3,8 +3,7 @@ import axios from 'axios'
 import { ref } from 'vue'
 
 export function useTrack() {
-  const BASE_URL = 'https://ft-backend-production.up.railway.app'
-  // const BASE_URL = 'http://localhost:3001'
+  const BASE_URL = 'https://agency-api-production-883f.up.railway.app'
   const searching = ref(false)
   const track = ref('')
   const client = ref('')
@@ -34,18 +33,19 @@ export function useTrack() {
 
         // Intentar extraer campos comunes del array details (según ejemplos)
         const status = details[0] || ''
-        const dateElem = details.find(d => /\d{1,2}\/\d{1,2}\/\d{4}/.test(d)) || ''
+        const dateElem = details.find(d => /\d{1,2}\/\d{1,2}\/\d{2,4}/.test(d)) || ''
         let createdAtIso = new Date().toISOString()
-        const dateMatch = (dateElem.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/) || [])
-        if (dateMatch.length === 4) {
+        const dateMatch = (dateElem.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/) || [])
+        if (dateMatch.length >= 4) {
           const day = parseInt(dateMatch[1], 10)
           const month = parseInt(dateMatch[2], 10) - 1
-          const year = parseInt(dateMatch[3], 10)
+          let yearStr = dateMatch[3]
+          const year = parseInt(yearStr.length === 2 ? '20' + yearStr : yearStr, 10)
           const dt = new Date(year, month, day)
           if (!isNaN(dt.getTime())) createdAtIso = dt.toISOString()
         }
 
-        // tracking suele estar en la posición 2 en los ejemplos
+        // tracking suele estar en la posición 1 en los ejemplos recientes
         const trackingCandidate = details[1] || ''
         const tracking = trackingCandidate && /[A-Za-z0-9-]{6,}/.test(trackingCandidate) ? trackingCandidate : (track.value || '')
 
@@ -58,14 +58,19 @@ export function useTrack() {
         const weightMatch = (weightElem.match(/(\d+(\.\d+)?)/) || [])[0]
         const weight = weightMatch ? parseFloat(weightMatch) : undefined
 
-        // tipo (último elemento en ejemplos)
-        const typeElem = details.find((d, ) => /Mar[ií]timo|Maritimo|Aereo|Air|Marítimo|Ocean|Oceanic/i.test(d)) || details[details.length - 1] || ''
+        // descripción
+        const descriptionElem = details.find(d => /Descripci[óo]n[:\s]/i.test(d)) || ''
+        const description = descriptionElem ? descriptionElem.replace(/Descripci[óo]n[:\s]*/i, '').trim() : ''
+
+        // tipo (buscar por 'Maritimo/Aereo/Ocean')
+        const typeElem = details.find(d => /Mar[ií]timo|Maritimo|Aereo|Air|Ocean|Oceanic/i.test(d)) || ''
         const type = typeElem || ''
 
         const pkg = {
           _id: guide || tracking || Date.now().toString(),
           tracking: tracking || '',
           weight: weight,
+          description: description,
           type: type || '',
           client: '', // no viene en este formato
           status: status || '',

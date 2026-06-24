@@ -153,9 +153,19 @@ function getLastActiveStatus(item) {
             <!-- Campos del paquete -->
             <div class="mt-3 text-sm text-gray-700 space-y-1">
               <div><strong>Tracking:</strong> {{ item.tracking || 'N/A' }}</div>
-              <div v-if="item.weight !== undefined"><strong>Peso:</strong> {{ item.weight }} lb(s)</div>
-              <div v-else-if="item.grossWeight !== undefined"><strong>Peso:</strong> {{ item.grossWeight }} lb(s)</div>
+              
+              <!-- Solo mostramos el peso si la búsqueda fue por tracking -->
+              <template v-if="method !== 'name'">
+                <div v-if="item.weight !== undefined"><strong>Peso:</strong> {{ item.weight }} lb(s)</div>
+                <div v-else-if="item.grossWeight !== undefined"><strong>Peso:</strong> {{ item.grossWeight }} lb(s)</div>
+              </template>
+              
               <div v-if="item.type"><strong>Tipo:</strong> {{ item.type }}</div>
+              
+              <div v-if="item.description"><strong>Descripción:</strong> {{ item.description }}</div>
+              
+              <div v-if="item.createdAt && method === 'name'"><strong>Fecha de creación:</strong> {{ formatDate(item.createdAt) }}</div>
+              
               <div v-if="item.status"><strong>Estado:</strong> {{ getLastActiveStatus(item) }}</div>
             </div>
 
