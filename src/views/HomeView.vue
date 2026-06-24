@@ -168,7 +168,6 @@ function getLastActiveStatus(item) {
                 <strong>Estado:</strong> <span class="font-medium text-blue-800">{{ getLastActiveStatus(item) }}</span>
               </div>
               <div v-if="item.description"><strong>Descripción:</strong> {{ item.description }}</div>
-              <div v-if="item.weight !== undefined"><strong>Peso:</strong> {{ item.weight }} lb(s)</div>
               <div v-if="item.type"><strong>Tipo:</strong> {{ item.type }}</div>
             </div>
           </template>
