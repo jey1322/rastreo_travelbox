@@ -67,7 +67,7 @@ function getLastActiveStatus(item) {
       return `${lastActive.status} - ${lastActive.date}`
     }
   }
-  return item.status
+  return item.status || 'Estado no disponible'
 }
 </script>
 
@@ -124,60 +124,55 @@ function getLastActiveStatus(item) {
   <section class="bg-white text-gray-600 h-full mb-4">
     <div class="max-w-3xl mx-auto flex flex-col items-stretch mb-4 px-4">
       <div v-if="packages.length" class="w-full flex flex-col gap-4">
+        
         <div
-          v-for="item in packages"
-          :key="item._id || item.id || item.tracking || item.guide || item.createdAt"
-          class="border rounded-lg p-4 bg-white shadow-sm"
+          v-for="(item, index) in packages"
+          :key="item.tracking || index"
+          class="border rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow"
         >
-          <!-- Encabezado -->
-          <div class="flex items-start justify-between gap-4">
-            <div class="flex-1">
-              <div class="text-sm font-bold text-[#1a1c27]">
-                {{ item.tracking || item.guide || item._id || item.id }}
-              </div>
-              <div class="text-xs text-gray-500">
-                {{ item.client || 'Cliente no disponible' }}
+          <!-- ============================================== -->
+          <!-- VISTA: BÚSQUEDA POR NOMBRE                     -->
+          <!-- Endpoint devuelve: client, tracking, weight,   -->
+          <!-- type, description, createdAt                   -->
+          <!-- ============================================== -->
+          <template v-if="method === 'name'">
+            <div class="flex items-start justify-between gap-4 mb-2">
+              <div class="flex-1 border-b pb-2">
+                <div class="text-sm font-bold text-[#1a1c27]">{{ item.tracking || 'Sin tracking' }}</div>
+                <div class="text-xs text-gray-500 uppercase">{{ item.client }}</div>
               </div>
             </div>
-          </div>
-
-          <!-- Vista cuando no se ha recibido el paquete -->
-          <template v-if="item.status === 'Aún no hemos recibido este paquete'">
-            <div class="mt-4 p-3 bg-yellow-50 text-yellow-800 text-sm font-medium rounded border border-yellow-200">
-              ⚠️ {{ item.status }}
-            </div>
-          </template>
-
-          <!-- Vista normal cuando el paquete sí tiene datos -->
-          <template v-else>
-            <!-- Campos del paquete -->
-            <div class="mt-3 text-sm text-gray-700 space-y-1">
-              <div><strong>Tracking:</strong> {{ item.tracking || 'N/A' }}</div>
-              
-              <!-- Solo mostramos el peso si la búsqueda fue por tracking -->
-              <template v-if="method !== 'name'">
-                <div v-if="item.weight !== undefined"><strong>Peso:</strong> {{ item.weight }} lb(s)</div>
-                <div v-else-if="item.grossWeight !== undefined"><strong>Peso:</strong> {{ item.grossWeight }} lb(s)</div>
-              </template>
-              
-              <div v-if="item.type"><strong>Tipo:</strong> {{ item.type }}</div>
-              
+            
+            <div class="mt-2 text-sm text-gray-700 space-y-1">
               <div v-if="item.description"><strong>Descripción:</strong> {{ item.description }}</div>
-              
-              <div v-if="item.createdAt && method === 'name'"><strong>Fecha de creación:</strong> {{ formatDate(item.createdAt) }}</div>
-              
-              <div v-if="item.status"><strong>Estado:</strong> {{ getLastActiveStatus(item) }}</div>
-            </div>
-
-            <!-- Imagen -->
-            <div class="mt-3">
-              <div class="text-sm text-gray-500 mb-1"><strong>Imagen:</strong></div>
-              <div v-if="item.image">
-                <img :src="item.image" alt="imagen paquete" class="w-40 h-auto rounded" />
-              </div>
-              <div v-else class="text-sm text-gray-400">Sin imagen</div>
+              <div v-if="item.type"><strong>Tipo:</strong> {{ item.type }}</div>
+              <div v-if="item.createdAt"><strong>Fecha de Ingreso:</strong> {{ formatDate(item.createdAt) }}</div>
             </div>
           </template>
+
+          <!-- ============================================== -->
+          <!-- VISTA: BÚSQUEDA POR TRACKING                   -->
+          <!-- Endpoint devuelve en details/logs: status,     -->
+          <!-- tracking, guide, weight, description, type     -->
+          <!-- ============================================== -->
+          <template v-else>
+            <div class="flex items-start justify-between gap-4 mb-2">
+              <div class="flex-1 border-b pb-2">
+                <div class="text-sm font-bold text-[#1a1c27]">{{ item.tracking || 'Sin tracking' }}</div>
+                <div v-if="item.guide" class="text-xs text-gray-500">Guía: {{ item.guide }}</div>
+              </div>
+            </div>
+
+            <div class="mt-2 text-sm text-gray-700 space-y-1">
+              <div v-if="item.status || (item.logs && item.logs.length)">
+                <strong>Estado:</strong> <span class="font-medium text-blue-800">{{ getLastActiveStatus(item) }}</span>
+              </div>
+              <div v-if="item.description"><strong>Descripción:</strong> {{ item.description }}</div>
+              <div v-if="item.weight !== undefined"><strong>Peso:</strong> {{ item.weight }} lb(s)</div>
+              <div v-if="item.type"><strong>Tipo:</strong> {{ item.type }}</div>
+            </div>
+          </template>
+
         </div>
       </div>
 
