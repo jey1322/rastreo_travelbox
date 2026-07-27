@@ -3,7 +3,7 @@ import axios from 'axios'
 import { ref } from 'vue'
 
 export function useTrack() {
-  const BASE_URL = 'https://agency-api-production-883f.up.railway.app'
+  const BASE_URL = 'https://api.enviosdeoccidente.com'
   const searching = ref(false)
   const track = ref('')
   const client = ref('')
