@@ -3,7 +3,7 @@ import axios from 'axios'
 import { ref } from 'vue'
 
 export function useTrack() {
-  const BASE_URL = 'https://api.enviosdeoccidente.com'
+  const BASE_URL = 'https://api.enviosdeoccidente.com/api/v2'
   const searching = ref(false)
   const track = ref('')
   const client = ref('')
@@ -63,7 +63,7 @@ export function useTrack() {
         const description = descriptionElem ? descriptionElem.replace(/Descripci[óo]n[:\s]*/i, '').trim() : ''
 
         // tipo (buscar por 'Maritimo/Aereo/Ocean')
-        const typeElem = details.find(d => /Mar[ií]timo|Maritimo|Aereo|Air|Ocean|Oceanic/i.test(d)) || ''
+        const typeElem = details.find(d => /Mar[ií]timo|A[eé]reo|Air|Ocean|Oceanic/i.test(d)) || ''
         const type = typeElem || ''
 
         const pkg = {
